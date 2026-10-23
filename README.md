@@ -4,7 +4,7 @@
 
 # FuckDQD
 
-**去掉懂球帝里的广告和博彩推单内容的 LSPosed 模块**
+**去除懂球帝广告与推单内容的 LSPosed 模块**
 
 [![License](https://img.shields.io/github/license/KotoriInSky/FuckDQD)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/KotoriInSky/FuckDQD)](https://github.com/KotoriInSky/FuckDQD/releases/latest)
@@ -16,9 +16,7 @@
 
 ## 简介
 
-FuckDQD 是一个基于 [libxposed API 102](https://github.com/libxposed/api) 的 LSPosed 模块，作用域只有懂球帝（`com.dongqiudi.news`）。它在懂球帝自己的广告调度层直接回「没有广告」，后面的穿山甲、优量汇、快手、百度等广告 SDK 都不会被调起；同时把预测、专家、情报这类博彩推单入口换掉或藏掉。
-
-所有功能都能在模块界面里单独开关。
+FuckDQD 是一款 LSPosed 模块，用于去除懂球帝中的广告与推单内容，各项功能均可在模块界面中独立开关。
 
 ## 功能
 
