@@ -61,12 +61,15 @@ class HookEntry : XposedModule() {
         val prefs = runCatching { getRemotePreferences(Keys.GROUP) }.getOrNull()
         fun on(key: String) = runCatching { prefs?.getBoolean(key, Keys.DEFAULT_ON) }.getOrNull() ?: Keys.DEFAULT_ON
 
-        val hooks = AdHooks(this, cl)
+        val ads = AdHooks(this, cl)
+        val betting = BettingHooks(this, cl)
         val report = buildList {
-            if (on(Keys.SPLASH)) add("splash=" + hooks.splash())
-            if (on(Keys.FEED)) add("feed=" + hooks.feed())
-            if (on(Keys.POPUP)) add("popup=" + hooks.popup())
-            if (on(Keys.BANNER)) add("banner=" + hooks.banner())
+            if (on(Keys.SPLASH)) add("splash=" + ads.splash())
+            if (on(Keys.FEED)) add("feed=" + ads.feed())
+            if (on(Keys.POPUP)) add("popup=" + ads.popup())
+            if (on(Keys.BANNER)) add("banner=" + ads.banner())
+            if (on(Keys.BETTING)) add("betting=" + runCatching { betting.betting() }.getOrElse { "failed $it" })
+            if (on(Keys.MATCH_INTEL)) add("matchIntel=" + runCatching { betting.matchIntel() }.getOrElse { "failed $it" })
         }
         trace("installed: " + report.joinToString(", ").ifEmpty { "nothing (all off)" })    }
 

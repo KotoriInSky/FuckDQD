@@ -2,9 +2,6 @@ package com.fuckdqd.hook
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import io.github.libxposed.api.XposedInterface
-import java.lang.reflect.Executable
 
 /**
  * 广告 hook 点，按设置页的开关分组。依据见 docs/hook-points.md（懂球帝 8.7.2 / 10441）。
@@ -16,7 +13,7 @@ import java.lang.reflect.Executable
  * 类名/方法名是混淆后的，换版本大概率要重新对；每组返回装上的数量，
  * 日志里出现 0 或 missing 就说明该重新逆向了。
  */
-class AdHooks(private val module: HookEntry, private val cl: ClassLoader) {
+class AdHooks(module: HookEntry, cl: ClassLoader) : HookGroup(module, cl) {
 
     /** 开屏：冷启动 / 热启动请求、开屏选广告、热启动缓存。 */
     fun splash(): String = group {
@@ -132,57 +129,6 @@ class AdHooks(private val module: HookEntry, private val cl: ClassLoader) {
         Handler(Looper.getMainLooper()).postDelayed(closeAd, 600)
     }
 
-    // ---- 工具 -------------------------------------------------------------
-
-    private var hooked = 0
-    private val missing = ArrayList<String>()
-
-    private inline fun group(block: () -> Unit): String {
-        hooked = 0
-        missing.clear()
-        block()
-        return if (missing.isEmpty()) "$hooked" else "$hooked missing=${missing.joinToString("|")}"
-    }
-
-    private fun method(className: String, name: String, vararg params: String): Executable? = try {
-        cl.loadClass(className).getDeclaredMethod(name, *params.map(::type).toTypedArray())
-    } catch (t: Throwable) {
-        missing += "${className.substringAfterLast('.')}.$name"
-        module.log(Log.WARN, HookEntry.TAG, "missing $className.$name: ${t.javaClass.simpleName}")
-        null
-    }
-
-    private fun type(name: String): Class<*> = when (name) {
-        INT -> Int::class.javaPrimitiveType!!
-        else -> cl.loadClass(name)
-    }
-
-    /** 不调原方法，直接返回 [result] 的结果。 */
-    private fun replace(m: Executable, result: (XposedInterface.Chain) -> Any?) {
-        intercept(m) { chain ->
-            module.trace("blocked ${m.declaringClass.name}.${m.name}")
-            runCatching { result(chain) }.getOrNull()
-        }
-    }
-
-    private fun intercept(m: Executable, hooker: XposedInterface.Hooker) {
-        module.hook(m).intercept(hooker)
-        hooked++
-    }
-
-    private fun invoke(target: Any, iface: String, name: String, vararg args: Any?, argTypes: Array<String> = emptyArray()) {
-        runCatching {
-            cl.loadClass(iface).getMethod(name, *argTypes.map(::type).toTypedArray()).invoke(target, *args)
-        }.onFailure { module.log(Log.WARN, HookEntry.TAG, "callback $iface.$name failed", it) }
-    }
-
-    private fun field(obj: Any, name: String): Any? =
-        obj.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(obj)
-
-    private fun setField(obj: Any, name: String, value: Any?) {
-        obj.javaClass.getDeclaredField(name).apply { isAccessible = true }.set(obj, value)
-    }
-
     companion object {
         const val DQD_ADS = "com.dongqiudi.ads.sdk.DQDAds"
         private const val DQD_ADS_D = "com.dongqiudi.ads.sdk.DQDAds\$d"
@@ -198,11 +144,5 @@ class AdHooks(private val module: HookEntry, private val cl: ClassLoader) {
         private const val HTML_REQUEST_PLUGIN = "com.dongqiudi.news.web.plugins.t0"
         private const val JS_CALLBACK = "com.github.lzyzsd.jsbridge.f"
         private const val JSON_OBJECT = "com.google.gson.JsonObject"
-
-        private const val STRING = "java.lang.String"
-        private const val CONTEXT = "android.content.Context"
-        private const val LIST = "java.util.List"
-        private const val MAP = "java.util.Map"
-        private const val INT = "int"
     }
 }

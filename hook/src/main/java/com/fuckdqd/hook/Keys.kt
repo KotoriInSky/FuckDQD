@@ -13,8 +13,13 @@ object Keys {
     const val POPUP = "block_popup"
     const val BANNER = "block_banner"
 
+    /** 底部「预测」换成「圈子」、隐藏比赛 tab 的「专业版」。 */
+    const val BETTING = "block_betting"
+    /** 比赛详情页的「情报 / 专家 / 前瞻」标签。 */
+    const val MATCH_INTEL = "block_match_intel"
+
     /** 开关缺省都是开：装上模块就是要去广告的。 */
     const val DEFAULT_ON = true
 
-    val ALL = listOf(SPLASH, FEED, POPUP, BANNER)
+    val ALL = listOf(SPLASH, FEED, POPUP, BANNER, BETTING, MATCH_INTEL)
 }

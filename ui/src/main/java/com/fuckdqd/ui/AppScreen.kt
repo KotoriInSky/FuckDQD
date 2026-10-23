@@ -34,11 +34,16 @@ import top.yukonga.miuix.kmp.theme.ColorSchemeMode
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.ThemeController
 
-private val toggleItems = listOf(
+private val adToggles = listOf(
     Triple(Keys.SPLASH, "开屏广告", "冷启动、热启动开屏，以及缓存的开屏素材"),
     Triple(Keys.FEED, "信息流 / 列表广告", "新闻流、视频、圈子、赛事、彩票等列表里的广告"),
     Triple(Keys.POPUP, "弹窗广告", "首页插屏弹窗、网页里触发的弹窗广告"),
-    Triple(Keys.BANNER, "横幅广告", "赛事页、直播视频页上的单个广告位"),
+    Triple(Keys.BANNER, "横幅 / 详情页广告", "赛事页、直播视频页的广告位，文章转发区下方的广告"),
+)
+
+private val bettingToggles = listOf(
+    Triple(Keys.BETTING, "推单 / 博彩", "底部「预测」换成「圈子」，隐藏比赛页的「专业版」"),
+    Triple(Keys.MATCH_INTEL, "比赛情报 / 专家 / 前瞻", "比赛详情页去掉这三个推单导流标签"),
 )
 
 @Composable
@@ -60,7 +65,9 @@ fun AppScreen(ctx: Context) {
                 contentPadding = PaddingValues(top = padding.calculateTopPadding(), bottom = 24.dp),
             ) {
                 item { StatusSection(ctx) }
-                item { ToggleSection(ctx) }
+                item { ToggleSection(ctx, "广告开关", adToggles) }
+                item { ToggleSection(ctx, "博彩 / 推单", bettingToggles) }
+                item { RestartHint() }
                 item {
                     SettingsSection(ctx, darkMode) {
                         darkMode = it
@@ -107,12 +114,12 @@ private fun StatusSection(ctx: Context) {
 }
 
 @Composable
-private fun ToggleSection(ctx: Context) {
+private fun ToggleSection(ctx: Context, header: String, items: List<Triple<String, String, String>>) {
     val status by FrameworkBridge.status
     val toggles by FrameworkBridge.toggles
-    SmallTitle(text = "广告开关")
+    SmallTitle(text = header)
     Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
-        toggleItems.forEach { (key, title, summary) ->
+        items.forEach { (key, title, summary) ->
             SwitchPreference(
                 checked = toggles[key] ?: Keys.DEFAULT_ON,
                 onCheckedChange = { if (!FrameworkBridge.setToggle(key, it)) toast(ctx, "保存失败：框架未连接") },
@@ -122,6 +129,10 @@ private fun ToggleSection(ctx: Context) {
             )
         }
     }
+}
+
+@Composable
+private fun RestartHint() {
     Text(
         text = "改动在懂球帝下次启动时生效。",
         modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
