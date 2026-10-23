@@ -8,7 +8,7 @@ import android.widget.TextView
 /**
  * 博彩 / 推单内容，按设置页的两个开关分组。需求见 docs/betting-removal.md（懂球帝 8.7.2 / 10441）。
  */
-class BettingHooks(module: HookEntry, cl: ClassLoader) : HookGroup(module, cl) {
+class BettingHooks(module: HookEntry, cl: ClassLoader, targets: HookTargets) : HookGroup(module, cl, targets) {
 
     /** 推单 / 博彩：底部第 4 格「预测」换成「圈子」，比赛 tab 去掉「专业版」。 */
     fun betting(): String = group {
@@ -55,6 +55,7 @@ class BettingHooks(module: HookEntry, cl: ClassLoader) : HookGroup(module, cl) {
                 result
             }
         }
+        homeTabsGetter = target(HookTargets.HOME_TABS)
         // MainActivity.onLotteryClicked()：原本切到 BaseLotteryPagerFragment（预测），改成跳到首页的「圈子」频道
         method(MAIN_ACTIVITY, "onLotteryClicked")?.let { m ->
             intercept(m) { chain ->
@@ -108,13 +109,18 @@ class BettingHooks(module: HookEntry, cl: ClassLoader) : HookGroup(module, cl) {
     /** 首页上次停留的非圈子频道 id，底栏点「首页」从圈子频道切回时用。 */
     private var lastHomeTabId: Int? = null
 
-    /** 首页标签里 type = community 的那个频道 id（首页标签管理单例 news.manager.h0 的 i()）。 */
+    /** 首页频道列表的 getter（首页标签管理单例 news.manager.h0 的 i()，混淆名，DexKit 查）。 */
+    private var homeTabsGetter: java.lang.reflect.Method? = null
+
+    /** 首页标签里 type = community 的那个频道 id。 */
     private fun communityTabId(): Int? {
-        val managerClass = cl.loadClass(HOME_TABS_MANAGER)
+        val getter = homeTabsGetter ?: return null
+        val managerClass = getter.declaringClass
+        // Kotlin object 单例：类里唯一一个自身类型的静态字段
         val manager = managerClass.declaredFields
             .first { java.lang.reflect.Modifier.isStatic(it.modifiers) && it.type == managerClass }
-            .apply { isAccessible = true }.get(null)!!
-        val tab = (call(manager, "i") as? List<*>)?.firstOrNull { runCatching { field(it!!, "type") }.getOrNull() == "community" }
+            .apply { isAccessible = true }.get(null)
+        val tab = (getter.invoke(manager) as? List<*>)?.firstOrNull { runCatching { field(it!!, "type") }.getOrNull() == "community" }
         return tab?.let { call(it, "getId") as? Int }
     }
 
@@ -172,23 +178,29 @@ class BettingHooks(module: HookEntry, cl: ClassLoader) : HookGroup(module, cl) {
                 chain.proceed().also { setField(chain.thisObject!!, "mTabs", arrayOf("比赛")) }
             }
         }
-        // MainTabMatchAdapter（match.adapter.i）构造里非青少年模式会再加一页 MatchBaseFragment（专业版），删掉
-        cl.loadClass(MAIN_TAB_MATCH_ADAPTER).declaredConstructors.forEach { m ->
-            intercept(m) { chain ->
-                chain.proceed().also {
-                    val pages = mutable(field(chain.thisObject!!, "mFragments"))
-                    pages?.removeAll { it?.javaClass?.name == MATCH_PRO_FRAGMENT }
+        // MainTabMatchAdapter（match.adapter.i，混淆名）构造里非青少年模式会再加一页 MatchBaseFragment（专业版），删掉。
+        // 页面列表字段也是混淆名（jadx 显示的 mFragments 实际叫 g），按类型找：类里唯一的 List 字段
+        targetClass(HookTargets.MATCH_TAB_ADAPTER)?.let { adapter ->
+            val pagesField = adapter.declaredFields.firstOrNull { java.util.List::class.java.isAssignableFrom(it.type) }
+                ?.apply { isAccessible = true }
+            adapter.declaredConstructors.forEach { m ->
+                intercept(m) { chain ->
+                    chain.proceed().also {
+                        runCatching {
+                            mutable(pagesField?.get(chain.thisObject))?.removeAll { it?.javaClass?.name == MATCH_PRO_FRAGMENT }
+                        }.onFailure { module.trace("remove pro match page failed: $it") }
+                    }
                 }
             }
         }
     }
 
     /**
-     * 比赛列表顶部的「关注 / 重要 / 全部 / 竞北 / 足球 …」来自全局缓存 com.dongqiudi.lib.a.b()（List<TabsDbModel>），
+     * 比赛列表顶部的「关注 / 重要 / 全部 / 竞北 / 足球 …」来自全局缓存 lib.a.b()（ConstPool.kt，混淆名，List<TabsDbModel>），
      * BaseTournamentFragment 建页时复制一份。在 getter 上按标题原地删掉彩票类标签（「竞北」）。
      */
     private fun hideLotteryMatchTabs() {
-        method(MATCH_TAB_CACHE, "b")?.let { m ->
+        target(HookTargets.MATCH_LIST_TABS)?.let { m ->
             intercept(m) { chain ->
                 chain.proceed().also { result ->
                     // 万一缓存被换成不可变 list，removeAll 会抛异常，别让它冒到懂球帝里
@@ -256,16 +268,13 @@ class BettingHooks(module: HookEntry, cl: ClassLoader) : HookGroup(module, cl) {
         /** 比赛列表顶部要去掉的标签（彩票类）。 */
         private val BLOCKED_MATCH_LIST_LABELS = setOf("竞北")
 
-        private const val MATCH_TAB_CACHE = "com.dongqiudi.lib.a"
         private const val TOURNAMENT_DETAIL = "com.dongqiudi.match.TournamentDetailActivity"
         private const val GROW_MATCH_TABS = "com.grow.business_core.model.MatchTabsModel"
         private const val BOTTOM_ITEM_VIEW = "com.dongqiudi.news.view.MainBottomItemView"
         private const val MAIN_ACTIVITY = "com.dongqiudi.news.MainActivity"
         private const val BASE_NEWS_FRAGMENT = "com.dongqiudi.news.fragment.BaseNewsFragment"
-        private const val HOME_TABS_MANAGER = "com.dongqiudi.news.manager.h0"
         private const val NEW_GROUP_LIST_ACTIVITY = "com.dongqiudi.group.NewGroupListActivity"
         private const val MAIN_TAB_MATCH = "com.dongqiudi.match.fragment.MainTabMatchFragment"
-        private const val MAIN_TAB_MATCH_ADAPTER = "com.dongqiudi.match.adapter.i"
         private const val MATCH_PRO_FRAGMENT = "com.grow.match_business.fragments.MatchBaseFragment"
 
         /** MainBottomView 的格子序号（view tag）：0 首页，3 原「预测」现「圈子」。 */

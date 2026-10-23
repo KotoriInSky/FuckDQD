@@ -4,12 +4,18 @@ import android.util.Log
 import io.github.libxposed.api.XposedInterface
 import java.lang.reflect.Executable
 import java.lang.reflect.Field
+import java.lang.reflect.Method
 
 /**
  * 一组 hook 的公共工具：按类名 / 方法签名找方法，挂 hook，统计装上的数量。
  * 每个开关对应子类里的一个方法，用 [group] 包起来返回「装上数 + 缺失项」给日志。
+ * 原名的类 / 方法直接按名字找；被混淆的从 [targets]（DexKit 查到的）里取。
  */
-abstract class HookGroup(protected val module: HookEntry, protected val cl: ClassLoader) {
+abstract class HookGroup(
+    protected val module: HookEntry,
+    protected val cl: ClassLoader,
+    private val targets: HookTargets,
+) {
 
     private var hooked = 0
     private val missing = ArrayList<String>()
@@ -27,6 +33,28 @@ abstract class HookGroup(protected val module: HookEntry, protected val cl: Clas
         missing += "${className.substringAfterLast('.')}.$name"
         module.log(Log.WARN, HookEntry.TAG, "missing $className.$name: ${t.javaClass.simpleName}")
         null
+    }
+
+    /** 被混淆的方法：取 [HookTargets] 里 [key] 对应的第一个。 */
+    protected fun target(key: String): Method? = targets.method(key) ?: run { missing += key; null }
+
+    /** 被混淆的方法：[key] 对应的全部（同样处理的一组）。 */
+    protected fun targetAll(key: String): List<Method> = targets.methods(key).also { if (it.isEmpty()) missing += key }
+
+    protected fun targetClass(key: String): Class<*>? = targets.clazz(key) ?: run { missing += key; null }
+
+    /** 类上声明的、[paramCount] 个参数的 [name] 方法；找不到记为缺失。 */
+    protected fun declared(cls: Class<*>, name: String, paramCount: Int): Method? =
+        cls.declaredMethods.firstOrNull { it.name == name && it.parameterCount == paramCount }
+            ?: run { missing += "${cls.simpleName}.$name"; null }
+
+    /**
+     * 调回调接口上的方法。接口类是混淆名，从被 hook 方法的参数类型里拿（[type]），方法按名字 + 参数个数找。
+     */
+    protected fun callback(target: Any, type: Class<*>, name: String, vararg args: Any?) {
+        runCatching {
+            type.methods.first { it.name == name && it.parameterCount == args.size }.invoke(target, *args)
+        }.onFailure { module.log(Log.WARN, HookEntry.TAG, "callback ${type.name}.$name failed", it) }
     }
 
     protected fun constructor(className: String, vararg params: String): Executable? = try {
@@ -54,12 +82,6 @@ abstract class HookGroup(protected val module: HookEntry, protected val cl: Clas
     protected fun intercept(m: Executable, hooker: XposedInterface.Hooker) {
         module.hook(m).intercept(hooker)
         hooked++
-    }
-
-    protected fun invoke(target: Any, iface: String, name: String, vararg args: Any?, argTypes: Array<String> = emptyArray()) {
-        runCatching {
-            cl.loadClass(iface).getMethod(name, *argTypes.map(::type).toTypedArray()).invoke(target, *args)
-        }.onFailure { module.log(Log.WARN, HookEntry.TAG, "callback $iface.$name failed", it) }
     }
 
     /** 按名字调 [obj] 自己或父类上声明的方法（含 private）。 */

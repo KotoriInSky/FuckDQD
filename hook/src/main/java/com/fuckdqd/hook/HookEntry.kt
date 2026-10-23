@@ -1,6 +1,7 @@
 package com.fuckdqd.hook
 
 import android.app.Application
+import android.content.pm.ApplicationInfo
 import android.util.Log
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface
@@ -43,7 +44,7 @@ class HookEntry : XposedModule() {
                         ).firstOrNull { runCatching { it.loadClass(AdHooks.DQD_ADS) }.isSuccess }
                         trace("${m.name} returned, real dex ${if (cl != null) "ready" else "missing"}")
                         if (cl != null && installed.compareAndSet(false, true)) {
-                            runCatching { install(cl) }.onFailure { log(Log.ERROR, TAG, "install failed", it) }
+                            runCatching { install(cl, chain.thisObject) }.onFailure { log(Log.ERROR, TAG, "install failed", it) }
                         }
                     }
                     result
@@ -57,12 +58,17 @@ class HookEntry : XposedModule() {
         }.onFailure { log(Log.ERROR, TAG, "arm LoadedApk anchors failed", it) }
     }
 
-    private fun install(cl: ClassLoader) {
+    /** [loadedApk] 是 anchor 所在的 LoadedApk，用来读懂球帝的 versionCode 和 apk 指纹（targets 缓存的 key）。 */
+    private fun install(cl: ClassLoader, loadedApk: Any?) {
         val prefs = runCatching { getRemotePreferences(Keys.GROUP) }.getOrNull()
         fun on(key: String) = runCatching { prefs?.getBoolean(key, Keys.DEFAULT_ON) }.getOrNull() ?: Keys.DEFAULT_ON
 
-        val ads = AdHooks(this, cl)
-        val betting = BettingHooks(this, cl)
+        val appInfo = runCatching {
+            loadedApk!!.javaClass.getMethod("getApplicationInfo").invoke(loadedApk) as ApplicationInfo
+        }.getOrNull()
+        val targets = HookTargets.load(this, cl, versionCode(appInfo), apkFingerprint(appInfo))
+        val ads = AdHooks(this, cl, targets)
+        val betting = BettingHooks(this, cl, targets)
         val report = buildList {
             if (on(Keys.SPLASH)) add("splash=" + ads.splash())
             if (on(Keys.FEED)) add("feed=" + ads.feed())
@@ -72,6 +78,15 @@ class HookEntry : XposedModule() {
             if (on(Keys.MATCH_INTEL)) add("matchIntel=" + runCatching { betting.matchIntel() }.getOrElse { "failed $it" })
         }
         trace("installed: " + report.joinToString(", ").ifEmpty { "nothing (all off)" })    }
+
+    /** ApplicationInfo.longVersionCode 是隐藏字段（API 28+），反射读；拿不到返回 -1。 */
+    private fun versionCode(info: ApplicationInfo?): Long = runCatching {
+        ApplicationInfo::class.java.getDeclaredField("longVersionCode").apply { isAccessible = true }.getLong(info)
+    }.getOrDefault(-1L)
+
+    /** 同一个 versionCode 重装（比如渠道包）也要重查，带上 apk 大小和修改时间。 */
+    private fun apkFingerprint(info: ApplicationInfo?): String =
+        info?.sourceDir?.let { File(it) }?.let { "${it.length()}-${it.lastModified()}" } ?: "unknown"
 
     private val traceFile = File("/data/data/${Keys.TARGET_PACKAGE}/files/fuckdqd.log")
     private val traceStarted = AtomicBoolean(false)

@@ -18,7 +18,12 @@ android {
         targetSdk = 36
         versionCode = versionParts[0].toInt() * 10000 + versionParts[1].toInt() * 100 + versionParts[2].toInt()
         versionName = moduleVersion
+        // DexKit 的 native 库只留真机会用到的两个 ABI
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
+
+    // native 库不压缩、不解压：LSPosed 从模块 APK 里直接按 lib/<abi>/ 加载 libdexkit.so
+    packaging { jniLibs { useLegacyPackaging = false } }
 
     buildTypes {
         release {

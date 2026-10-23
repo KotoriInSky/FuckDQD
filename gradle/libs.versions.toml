@@ -6,12 +6,14 @@ agp = "9.3.1"
 kotlin = "2.4.10"
 libxposed = "102.0.0"
 miuix = "0.9.4"
+dexkit = "2.3.0"
 composeBom = "2026.09.00"
 activityCompose = "1.13.0"
 
 [libraries]
 libxposed-api = { module = "io.github.libxposed:api", version.ref = "libxposed" }
 libxposed-service = { module = "io.github.libxposed:service", version.ref = "libxposed" }
+dexkit = { module = "org.luckypray:dexkit", version.ref = "dexkit" }
 
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 compose-foundation = { module = "androidx.compose.foundation:foundation" }
