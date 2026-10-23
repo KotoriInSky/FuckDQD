@@ -1,6 +1,8 @@
-package com.fuckdqd.ui
+package io.github.kotoriinsky.fuckdqd.ui
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,7 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.fuckdqd.hook.Keys
+import io.github.kotoriinsky.fuckdqd.hook.Keys
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,6 +35,8 @@ import top.yukonga.miuix.kmp.preference.SwitchPreference
 import top.yukonga.miuix.kmp.theme.ColorSchemeMode
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.ThemeController
+
+private const val REPO_URL = "https://github.com/KotoriInSky/FuckDQD"
 
 private val adToggles = listOf(
     Triple(Keys.SPLASH, "开屏广告", "冷启动、热启动开屏，以及缓存的开屏素材"),
@@ -74,7 +78,7 @@ fun AppScreen(ctx: Context) {
                         LocalSettings.setDarkMode(ctx, it)
                     }
                 }
-                item { AboutSection() }
+                item { AboutSection(ctx) }
             }
         }
     }
@@ -107,7 +111,7 @@ private fun StatusSection(ctx: Context) {
         )
         ArrowPreference(
             title = "懂球帝版本",
-            summary = LocalSettings.targetVersion(ctx)?.let { "$it · hook 点按 8.7.2 (10441) 适配" } ?: "未安装",
+            summary = LocalSettings.targetVersion(ctx)?.let { "$it · 8.7.2 (10441) 实测，其他版本自动查找 hook 点" } ?: "未安装",
             onClick = null,
         )
     }
@@ -182,12 +186,20 @@ private fun SettingsSection(
 }
 
 @Composable
-private fun AboutSection() {
+private fun AboutSection(ctx: Context) {
     SmallTitle(text = "关于")
     Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
         Column {
             ArrowPreference(title = "版本", summary = BuildConfig.MODULE_VERSION, onClick = null)
             ArrowPreference(title = "构建时间", summary = BuildConfig.BUILD_TIME, onClick = null)
+            ArrowPreference(
+                title = "开源地址",
+                summary = REPO_URL.removePrefix("https://"),
+                onClick = {
+                    runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(REPO_URL)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                },
+            )
+            ArrowPreference(title = "开源协议", summary = "GPL-3.0", onClick = null)
         }
     }
     Spacer(Modifier.height(8.dp))

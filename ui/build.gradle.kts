@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.fuckdqd.ui"
+    namespace = "io.github.kotoriinsky.fuckdqd.ui"
     compileSdk = 37
 
     defaultConfig {

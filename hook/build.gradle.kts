@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.fuckdqd.hook"
+    namespace = "io.github.kotoriinsky.fuckdqd.hook"
     compileSdk = 37
 
     defaultConfig {

@@ -1,4 +1,4 @@
-package com.fuckdqd.hook
+package io.github.kotoriinsky.fuckdqd.hook
 
 import android.app.Application
 import android.content.pm.ApplicationInfo

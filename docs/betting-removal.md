@@ -1,13 +1,13 @@
 # 博彩 / 推单内容屏蔽（需求记录）
 
 记录时间：2026-10-23。调研版本：懂球帝 8.7.2（10441）。
-本文件只记录需求与定位线索，**尚未实现**。实现依赖广告 hook 那套 `install()` 注入链路能稳定生效。
+需求与定位线索。**已实现**，见 `BettingHooks.kt`；实现时和这里记录的有出入的地方以代码注释为准（比如「预测」改成直接跳首页圈子频道）。
 
-参考图：
-- `betting-ref/match-detail-nba.jpg` —— NBA 比赛页，标签栏：评分 / 赛况 / 阵容 / **情报** / 分析 / **专家**
-- `betting-ref/match-detail-cba-preview.jpg` —— CBA 比赛页，标签栏含 **前瞻**（专家陪聊、关注解锁前瞻）
-- `betting-ref/match-detail-expert-betting.jpg` —— **专家** 页：猜胜负、让球、至少进 X 球、红钻解锁方案、预言家等，纯博彩导流
-- `../design/icon/circle_tab_ref.png` —— 圈子底部图标参考（说话气泡 + “…”，文字“圈子”）
+参考图（第三方页面截图，只在本地 research/ref/，不进仓库）：
+- `research/ref/match-detail-nba.jpg` —— NBA 比赛页，标签栏：评分 / 赛况 / 阵容 / **情报** / 分析 / **专家**
+- `research/ref/match-detail-cba-preview.jpg` —— CBA 比赛页，标签栏含 **前瞻**（专家陪聊、关注解锁前瞻）
+- `research/ref/match-detail-expert-betting.jpg` —— **专家** 页：猜胜负、让球、至少进 X 球、红钻解锁方案、预言家等，纯博彩导流
+- `research/ref/circle_tab_ref.png` —— 圈子底部图标参考（说话气泡 + “…”，文字“圈子”）
 
 ---
 
@@ -27,7 +27,7 @@
 ## 2. 底部「预测」入口 → 换成「圈子」
 
 - 底部导航第 4 格（view id `R.id.thread`，tag=3）现为「预测」（彩票/推单），改成「圈子」。
-- **图标**：需自己画，样式见 `design/icon/circle_tab_ref.png`（圆角说话气泡 + 居中“…”），文字“圈子”。
+- **图标**：需自己画，样式见 `research/ref/circle_tab_ref.png`（圆角说话气泡 + 居中“…”），文字“圈子”。
 - **点击跳转**：改为打开圈子，不再进彩票页。圈子线索：
   - `com.dongqiudi.lottery.fragment.LotteryGroupFragment`（scheme `main/group/index`）
   - `com.dongqiudi.lottery.activity.LotteryGroupActivity`

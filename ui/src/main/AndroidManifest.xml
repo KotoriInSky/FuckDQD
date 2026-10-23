@@ -9,7 +9,7 @@
     <application>
         <!-- LSPosed 管理器通过 MODULE_SETTINGS 打开它，所以隐藏桌面图标后仍能进设置 -->
         <activity
-            android:name="com.fuckdqd.ui.MainActivity"
+            android:name="io.github.kotoriinsky.fuckdqd.ui.MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode|density|fontScale"
             android:exported="true"
             android:label="@string/ui_app_name"
@@ -22,11 +22,11 @@
 
         <!-- 桌面入口单独做成 alias：「在桌面隐藏图标」就是禁用这个组件 -->
         <activity-alias
-            android:name="com.fuckdqd.ui.LauncherAlias"
+            android:name="io.github.kotoriinsky.fuckdqd.ui.LauncherAlias"
             android:enabled="true"
             android:exported="true"
             android:label="@string/ui_app_name"
-            android:targetActivity="com.fuckdqd.ui.MainActivity">
+            android:targetActivity="io.github.kotoriinsky.fuckdqd.ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

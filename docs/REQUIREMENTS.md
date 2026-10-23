@@ -33,5 +33,6 @@
 
 ## 待办
 - ~~注入时机~~（2026-10-23 已解决）：在 `onModuleLoaded` 里挂 `LoadedApk.createOrUpdateClassLoaderLocked` 等外层帧，返回时装 hook。壳在 `N.al` 之后会吞掉模块的 logcat，日志看 `/data/data/com.dongqiudi.news/files/fuckdqd.log`。
-- 博彩 / 推单内容屏蔽：见 `docs/betting-removal.md`（已记录定位线索，待实现；注入前提已满足）。
-- 圈子底部图标：按 `design/icon/circle_tab_ref.png` 绘制。
+- ~~博彩 / 推单内容屏蔽~~（已实现）：见 `docs/betting-removal.md`。
+- ~~圈子底部图标~~（已实现）：`CircleTabDrawable` 用 Canvas 画。
+- ~~换版本自动适配~~（已实现）：`HookTargets` 用 DexKit 查找混淆目标，按版本缓存。

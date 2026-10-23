@@ -1,9 +1,9 @@
-package com.fuckdqd.ui
+package io.github.kotoriinsky.fuckdqd.ui
 
 import android.content.SharedPreferences
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import com.fuckdqd.hook.Keys
+import io.github.kotoriinsky.fuckdqd.hook.Keys
 import io.github.libxposed.service.XposedService
 import io.github.libxposed.service.XposedServiceHelper
 import java.util.concurrent.atomic.AtomicBoolean

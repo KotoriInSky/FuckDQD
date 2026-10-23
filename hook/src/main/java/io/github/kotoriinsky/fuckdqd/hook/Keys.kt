@@ -1,4 +1,4 @@
-package com.fuckdqd.hook
+package io.github.kotoriinsky.fuckdqd.hook
 
 /**
  * 前后端共用的配置契约。设置界面通过 libxposed service 写 RemotePreferences，

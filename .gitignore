@@ -7,3 +7,4 @@ research/
 .idea/
 *.jks
 *.keystore
+keystore.properties

@@ -1,4 +1,4 @@
-package com.fuckdqd.ui
+package io.github.kotoriinsky.fuckdqd.ui
 
 import android.content.ComponentName
 import android.content.Context
@@ -10,7 +10,7 @@ import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.fuckdqd.hook.Keys
+import io.github.kotoriinsky.fuckdqd.hook.Keys
 
 class MainActivity : ComponentActivity() {
 
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
 object LocalSettings {
     private const val FILE = "ui"
     private const val KEY_DARK = "dark_mode"
-    private const val LAUNCHER_ALIAS = "com.fuckdqd.ui.LauncherAlias"
+    private const val LAUNCHER_ALIAS = "io.github.kotoriinsky.fuckdqd.ui.LauncherAlias"
 
     enum class DarkMode(val label: String) { SYSTEM("跟随系统"), LIGHT("浅色"), DARK("深色") }
 
