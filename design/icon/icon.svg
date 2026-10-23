@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="432" height="432">
+<defs><clipPath id="c"><path d="M20,51 a31,31 0 1,0 62,0 a31,31 0 1,0 -62,0 Z"/></clipPath><mask id="m"><rect width="108" height="108" fill="#fff"/><circle cx="54" cy="54" r="33" fill="none"/></mask></defs>
+<rect width="108" height="108" fill="#16A34A"/>
+<path d="M20,51 a31,31 0 1,0 62,0 a31,31 0 1,0 -62,0 Z" fill="#FFFFFF"/>
+<g fill="#16A34A"><path d="M51.00,32.68 L40.95,25.38 L44.79,13.56 L57.21,13.56 L61.05,25.38 Z"/><path d="M68.42,45.34 L72.26,33.52 L84.68,33.52 L88.52,45.34 L78.47,52.64 Z"/><path d="M61.77,65.82 L74.19,65.82 L78.03,77.64 L67.98,84.94 L57.93,77.64 Z"/><path d="M40.23,65.82 L44.07,77.64 L34.02,84.94 L23.97,77.64 L27.81,65.82 Z"/><path d="M33.58,45.34 L23.53,52.64 L13.48,45.34 L17.32,33.52 L29.74,33.52 Z"/></g>
+<path d="M21.5,51 a29.5,29.5 0 1,0 59.0,0 a29.5,29.5 0 1,0 -59.0,0 Z" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+<path d="M51.00,40.43 L61.05,47.73 L57.21,59.55 L44.79,59.55 L40.95,47.73 Z" fill="#16A34A"/>
+<path d="M51.00,40.43 L51.00,32.68 M61.05,47.73 L68.42,45.34 M57.21,59.55 L61.77,65.82 M44.79,59.55 L40.23,65.82 M40.95,47.73 L33.58,45.34" stroke="#16A34A" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M53,70 a17,17 0 1,0 34,0 a17,17 0 1,0 -34,0 Z" fill="#16A34A"/>
+<path d="M56,70 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0 Z" fill="#FF4D4F"/>
+<path d="M61.7,70 a8.3,8.3 0 1,0 16.6,0 a8.3,8.3 0 1,0 -16.6,0 Z" fill="none" stroke="#FFFFFF" stroke-width="2.8"/>
+<path d="M64.13,64.13 L75.87,75.87" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/>
+</svg>

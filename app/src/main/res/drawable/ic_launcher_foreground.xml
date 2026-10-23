@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFFFFF" android:pathData="M30,54 a24,24 0 1,0 48,0 a24,24 0 1,0 -48,0 Z"/>
+    <path android:fillColor="#16A34A" android:pathData="M54.00,39.82 L46.22,34.16 L49.19,25.02 L58.81,25.02 L61.78,34.16 Z"/>
+    <path android:fillColor="#16A34A" android:pathData="M67.49,49.62 L70.46,40.47 L80.08,40.47 L83.05,49.62 L75.27,55.27 Z"/>
+    <path android:fillColor="#16A34A" android:pathData="M62.34,65.47 L71.95,65.47 L74.93,74.62 L67.15,80.27 L59.36,74.62 Z"/>
+    <path android:fillColor="#16A34A" android:pathData="M45.66,65.47 L48.64,74.62 L40.85,80.27 L33.07,74.62 L36.05,65.47 Z"/>
+    <path android:fillColor="#16A34A" android:pathData="M40.51,49.62 L32.73,55.27 L24.95,49.62 L27.92,40.47 L37.54,40.47 Z"/>
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M31.5,54 a22.5,22.5 0 1,0 45.0,0 a22.5,22.5 0 1,0 -45.0,0 Z"/>
+    <path android:fillColor="#16A34A" android:pathData="M54.00,45.82 L61.78,51.47 L58.81,60.62 L49.19,60.62 L46.22,51.47 Z"/>
+    <path android:strokeColor="#16A34A" android:strokeWidth="2.6" android:strokeLineCap="round" android:pathData="M54.00,45.82 L54.00,39.82 M61.78,51.47 L67.49,49.62 M58.81,60.62 L62.34,65.47 M49.19,60.62 L45.66,65.47 M46.22,51.47 L40.51,49.62"/>
+    <path android:fillColor="#16A34A" android:pathData="M57.0,70 a13.0,13.0 0 1,0 26.0,0 a13.0,13.0 0 1,0 -26.0,0 Z"/>
+    <path android:fillColor="#FF4D4F" android:pathData="M59.5,70 a10.5,10.5 0 1,0 21.0,0 a10.5,10.5 0 1,0 -21.0,0 Z"/>
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="2.8" android:strokeLineCap="round" android:pathData="M63.8,70 a6.2,6.2 0 1,0 12.4,0 a6.2,6.2 0 1,0 -12.4,0 Z"/>
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="2.8" android:strokeLineCap="round" android:pathData="M65.62,65.62 L74.38,74.38"/>
+</vector>

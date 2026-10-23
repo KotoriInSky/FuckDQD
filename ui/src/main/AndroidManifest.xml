@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 首页要显示懂球帝的版本号；Android 11 起不声明就查不到 -->
+    <queries>
+        <package android:name="com.dongqiudi.news" />
+    </queries>
+
+    <application>
+        <!-- LSPosed 管理器通过 MODULE_SETTINGS 打开它，所以隐藏桌面图标后仍能进设置 -->
+        <activity
+            android:name="com.fuckdqd.ui.MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode|density|fontScale"
+            android:exported="true"
+            android:label="@string/ui_app_name"
+            android:theme="@style/Theme.FuckDQD">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
+            </intent-filter>
+        </activity>
+
+        <!-- 桌面入口单独做成 alias：「在桌面隐藏图标」就是禁用这个组件 -->
+        <activity-alias
+            android:name="com.fuckdqd.ui.LauncherAlias"
+            android:enabled="true"
+            android:exported="true"
+            android:label="@string/ui_app_name"
+            android:targetActivity="com.fuckdqd.ui.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+    </application>
+
+</manifest>
