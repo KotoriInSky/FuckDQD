@@ -49,7 +49,7 @@ FuckDQD 是一个基于 [libxposed API 102](https://github.com/libxposed/api) �
 
 - Android 8.0 及以上
 - 支持 libxposed API 102 的 LSPosed（开发时用的是 LSPosed 2.2.1）
-- 懂球帝：在 **8.7.2（10441）** 上完整测试；其他版本会自动查找 hook 点，见[版本适配](#版本适配)
+- 懂球帝 **8.7.2** 及以上，见[版本适配](#版本适配)
 
 ## 安装
 
@@ -61,49 +61,25 @@ FuckDQD 是一个基于 [libxposed API 102](https://github.com/libxposed/api) �
 
 ## 版本适配
 
-懂球帝的代码经过 R8 混淆，换版本后部分类名、方法名会变。模块用 [DexKit](https://github.com/LuckyPray/DexKit) 按不容易变的特征（接口地址、字符串常量、参数类型、调用关系）重新查找这些 hook 点：
-
-- 每个懂球帝版本只在第一次启动时查找一次（约 200ms），结果缓存在懂球帝私有目录，之后直接读缓存。
-- 在 8.7.2 上，查找结果和人工逆向的结果逐项比对，15 项全部一致。
-- 某个 hook 点在新版本上找不到时，只是那一项不生效，不影响其他功能。
+模块在懂球帝 8.7.2 上完整测试。懂球帝更新后，模块会在首次启动时自动重新定位所需的 hook 点，一般不需要等模块更新。
 
 ## 常见问题
 
-**广告没去掉 / 想看模块到底装上了什么？**
+**模块没有生效？**
 
-懂球帝加了爱加密壳，壳会让模块在它解密完成之后打的 logcat 都看不到，所以日志写在懂球帝私有目录里：
+确认 LSPosed 中已启用 FuckDQD 并勾选了懂球帝作用域，然后强制停止懂球帝再重新打开。
 
-```bash
-adb shell su -c "cat /data/data/com.dongqiudi.news/files/fuckdqd.log"
-```
+**懂球帝更新后部分功能失效？**
 
-正常的话能看到类似 `installed: splash=4, feed=3, popup=3, banner=3, betting=10, matchIntel=2` 的一行，以及每次拦截的 `blocked ...`。如果某一组后面带了 `missing=...`，说明那几个 hook 点在你的懂球帝版本上没找到，欢迎提 Issue 并附上这份日志和懂球帝版本号。
+欢迎[提交 Issue](https://github.com/KotoriInSky/FuckDQD/issues)，并注明懂球帝的版本号。
 
-**更新懂球帝之后某些功能失效了？**
+## 构建
 
-先强制停止懂球帝再打开一次，让模块重新查找 hook 点。如果日志里还是有 `missing`，请提 Issue。
-
-**为什么从 1.0.0 之前的测试版升级要先卸载？**
-
-正式版换了包名（`io.github.kotoriinsky.fuckdqd`）和签名，和测试版不是同一个应用。卸载旧版后安装新版，并在 LSPosed 里重新启用。
-
-## 自己编译
-
-需要 JDK 21 和 Android SDK（compileSdk 37）。
+需要 JDK 21：
 
 ```bash
 ./gradlew :app:assembleRelease
 ```
-
-产物在 `app/build/outputs/apk/release/`。根目录放一个 `keystore.properties`（`storeFile` / `storePassword` / `keyAlias` / `keyPassword`）就用你自己的密钥签名，没有的话用 debug 签名。
-
-### 项目结构
-
-| 模块 | 内容 |
-| --- | --- |
-| `:hook` | 注入懂球帝的代码：入口 `HookEntry`、广告 `AdHooks`、博彩推单 `BettingHooks`、DexKit 查找 `HookTargets` |
-| `:ui` | 模块界面（Jetpack Compose + miuix） |
-| `:app` | 打包壳，`META-INF/xposed` 模块声明 |
 
 ## 致谢
 
