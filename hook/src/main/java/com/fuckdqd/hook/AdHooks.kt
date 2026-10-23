@@ -55,8 +55,11 @@ class AdHooks(module: HookEntry, cl: ClassLoader, targets: HookTargets) : HookGr
         // DQDAds.R0(e callback, AdsRequestModel, int page, String key, Map extra)：新闻流 DqdFeedAdRequest
         target(HookTargets.NEWS_FEED_REQUEST)?.let { m ->
             replace(m) { chain ->
-                // 与 DqdFeedAdRequest 自己「没有缓存配置」时的回调一致
-                chain.getArg(0)?.let { callback(it, m.parameterTypes[0], "onADLoadSuccess", null, -1, 0) }
+                // 唯一调用方 NewsListAdsRequest 要等回调走到 processAd → onResponse 才把列表交出去，
+                // 否则列表要等它的超时兜底（几秒）才显示，冷门圈子这类没缓存的页面会一直停在占位 logo。
+                // 不能回 type = -1（「没有 SDK」）：那条分支没有自有广告时只打日志不回调。
+                // 回「自有广告、0 条」：k.f 被清空后 adTypesCount = 0，会立刻 processAd(null) → onResponse(null)
+                chain.getArg(0)?.let { callback(it, m.parameterTypes[0], "onADLoadSuccess", ArrayList<Any>(), 1, 0) }
                 null
             }
         }
